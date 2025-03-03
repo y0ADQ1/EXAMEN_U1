@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser } from "../controllers/registerUserController";
+import { registerUser } from "../controllers/userControllers/registerUserController";
 import {validateName} from "../middlewares/registerUserMiddlewares/validateName";
 import {validatePhoneNumber} from "../middlewares/registerUserMiddlewares/validatePhoneNumber";
 import {validateEmail} from "../middlewares/registerUserMiddlewares/validateEmail";

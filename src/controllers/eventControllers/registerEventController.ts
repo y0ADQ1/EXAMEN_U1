@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { db } from "../config/database";
-import { events } from "../models/events";
+import { db } from "../../config/database";
+import { events } from "../../models/events";
 import { InferInsertModel } from "drizzle-orm";
 
 export const createEvent = async (req: Request, res: Response) => {

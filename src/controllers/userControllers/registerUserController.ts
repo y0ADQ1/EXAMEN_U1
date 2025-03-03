@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { db } from "../config/database";
-import { users } from "../models/user";
+import { db } from "../../config/database";
+import { users } from "../../models/user";
 import bcrypt from "bcrypt";
 
 export const registerUser = async (req: Request, res: Response) => {

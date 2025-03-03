@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { generateToken } from "../config/jwt";
+import { generateToken } from "../../config/jwt";
 import { InferSelectModel } from "drizzle-orm";
-import { users } from "../models/user";
+import { users } from "../../models/user";
 
-export const loginUser = async (req: Request & { user?: InferSelectModel<typeof users> }, res: Response): Promise<void> => { 
+export const loginUser = async (req: Request & { user?: InferSelectModel<typeof users> }, res: Response): Promise<void> => {
     if (!req.user) {
         res.status(400).json({ error: "Usuario no encontrado." });
         return;

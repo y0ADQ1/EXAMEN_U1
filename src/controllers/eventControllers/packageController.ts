@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { db } from "../config/database";
-import { packageEvent } from "../models/packageEvent";
+import { db } from "../../config/database";
+import { packageEvent } from "../../models/packageEvent";
 
 export const getPackages = async (req: Request, res: Response) => {
     try {
