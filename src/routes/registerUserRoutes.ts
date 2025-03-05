@@ -5,9 +5,10 @@ import {validatePhoneNumber} from "../middlewares/registerUserMiddlewares/valida
 import {validateEmail} from "../middlewares/registerUserMiddlewares/validateEmail";
 import {validatePassword} from "../middlewares/registerUserMiddlewares/validatePassword";
 import {validateExistingEmail} from "../middlewares/registerUserMiddlewares/validateExistingEmail";
+import { validateExistingPhoneNumber } from "../middlewares/registerUserMiddlewares/validateExistingPhoneNumber";
 
 const router = express.Router();
 
-router.post("/register", validateName, validatePhoneNumber, validateEmail, validatePassword, validateExistingEmail, registerUser);
+router.post("/userRegister", validateName, validateExistingPhoneNumber, validatePhoneNumber, validateEmail, validatePassword, validateExistingEmail, registerUser);
 
 export default router;

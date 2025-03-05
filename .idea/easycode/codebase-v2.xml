@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="com.obiscr.chatgpt.settings.EasyCodeState">
+    <option name="projectFiles" value="$PROJECT_DIR$/src/config/database.ts;C:/xampp/htdocs/EXAMEN_U1_V2/src/models/user.ts;C:/xampp/htdocs/EXAMEN_U1_V2/drizzle.config.ts;C:/xampp/htdocs/EXAMEN_U1_V2/package-lock.json;C:/xampp/htdocs/EXAMEN_U1_V2/package.json;C:/xampp/htdocs/EXAMEN_U1_V2/tsconfig.json" />
+  </component>
+</project>

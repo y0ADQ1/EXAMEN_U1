@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .buttons {
+            margin: 20px 0;
+        }
+        .buttons button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+        }
+        .register {
+            background: #28a745;
+        }
+        .login {
+            background: #007bff;
+        }
+        .register:hover {
+            background: #218838;
+        }
+        .login:hover {
+            background: #0056b3;
+        }
+        .package {
+            background: white;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: left;
+        }
+        .package h3 {
+            margin: 0;
+            color: #444;
+        }
+        .package p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .view-btn {
+            padding: 8px;
+            background: #ff9800;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .view-btn:hover {
+            background: #e68900;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bienvenido a Nuestro Servicio</h1>
+    <p>Elige un paquete y disfruta de nuestros eventos.</p>
+
+    <div class="buttons">
+        <button class="register" onclick="location.href='/registerUser'">Registrarse</button>
+        <button class="login" onclick="location.href='/loginUserView'">Iniciar Sesión</button>
+    </div>
+
+    <h2>Paquetes Disponibles</h2>
+    <div id="packageList">Cargando paquetes...</div>
+</div>
+
+<script>
+    async function fetchPackages() {
+        try {
+            const response = await fetch("/api/packages");
+            const data = await response.json();
+
+            const packageList = document.getElementById("packageList");
+            packageList.innerHTML = "";
+
+            if (!response.ok || !data.packages.length) {
+                packageList.innerHTML = "<p>No hay paquetes disponibles en este momento.</p>";
+                return;
+            }
+
+            data.packages.forEach(pkg => {
+                const packageElement = document.createElement("div");
+                packageElement.className = "package";
+                packageElement.innerHTML = `
+                        <h3>${pkg.name}</h3>
+                        <p>${pkg.description}</p>
+                        <p><strong>Precio:</strong> $${pkg.totalPrice}</p>
+                        <button class="view-btn" onclick="viewPackage(${pkg.id})">Seleccionar paquete</button>
+                    `;
+                packageList.appendChild(packageElement);
+            });
+        } catch (error) {
+            console.error("Error obteniendo paquetes:", error);
+            document.getElementById("packageList").innerHTML = "<p>Error al cargar los paquetes.</p>";
+        }
+    }
+
+    function viewPackage(packageId) {
+        window.location.href = `/registerEvent?packageId=${packageId}`;
+    }
+
+    fetchPackages();
+</script>
+
+</body>
+</html>

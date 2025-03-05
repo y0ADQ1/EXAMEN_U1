@@ -1,0 +1,66 @@
+import { Request, Response } from "express";
+import { db } from "../../config/database";
+import { events } from "../../models/events";
+import { users } from "../../models/user";
+import { InferInsertModel, eq } from "drizzle-orm";
+import { sendSms } from "../../services/twilioService";
+
+export const createEvent = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { eventDate, eventTime, packageEventId } = req.body;
+
+        const userId = (req as Request & { user: { userId: number } }).user.userId;
+
+        // 🔹 Recuperar el usuario
+        const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+        if (!user) {
+            res.status(404).json({ error: "Usuario no encontrado." });
+            return;
+        }
+
+        // 🔹 Recuperar el precio del paquete
+        const [packageData] = await db
+            .select({ totalPrice: packageEvent.totalCost })
+            .from(packageEvent)
+            .where(eq(packageEvent.id, packageEventId))
+            .limit(1);
+
+        if (!packageData) {
+            res.status(404).json({ error: "Paquete no encontrado." });
+            return;
+        }
+
+        const totalCost = packageData.totalPrice; // Asignamos el precio correcto
+
+        // 🔹 Insertar el evento con el totalCost correcto
+        await db.insert(events).values({
+            eventDate,
+            eventTime,
+            totalCost,
+            packageEventId,
+            userId,
+            status: "pending"
+        });
+
+        // 🔹 Notificar al usuario por SMS
+        if (user.phoneNumber) {
+            const eventMessage = `Tu evento ha sido creado correctamente para el ${eventDate} a las ${eventTime}`;
+            await sendSms(user.phoneNumber, eventMessage);
+        }
+
+        // 🔹 Notificar a los administradores
+        const adminUsers = await db.select().from(users).where(eq(users.admin, 1));
+        for (const admin of adminUsers) {
+            if (admin.phoneNumber) {
+                const adminMessage = `Se ha registrado un nuevo evento por el usuario ${user.email}.`;
+                await sendSms(admin.phoneNumber, adminMessage);
+            }
+        }
+
+        res.status(201).json({ message: "Evento creado exitosamente" });
+    } catch (error) {
+        console.error("Error al crear el evento:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
+};
+

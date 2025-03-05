@@ -1,0 +1,31 @@
+import { Request, Response, NextFunction } from "express";
+
+export const validatePhoneNumber = (req: Request, res: Response, next: NextFunction): void => {
+    const { phoneNumber } = req.body;
+
+    // Validar que el número de teléfono esté presente
+    if (!phoneNumber) {
+        res.status(400).json({ error: "El número de teléfono es requerido." });
+        return;
+    }
+
+    // Verificar que el número inicie con "+52"
+    if (!phoneNumber.startsWith("+52")) {
+        res.status(400).json({ error: "El número de teléfono debe incluir el código de país (+52)." });
+        return;
+    }
+
+    // Eliminar caracteres no numéricos (excepto el "+")
+    const cleanedPhoneNumber = phoneNumber.replace(/[^\d+]/g, '');
+
+    // Validar que el número tenga el formato correcto (+52XXXXXXXXXX)
+    const phoneRegex = /^\+52\d{10}$/;
+    if (!phoneRegex.test(cleanedPhoneNumber)) {
+        res.status(400).json({ error: "El número de teléfono debe ser un número válido de México con formato +52XXXXXXXXXX." });
+        return;
+    }
+
+    // Adjuntar el número validado al objeto `req.body`
+    req.body.phoneNumber = cleanedPhoneNumber;
+    next();
+};

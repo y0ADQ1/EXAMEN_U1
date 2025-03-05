@@ -5,7 +5,7 @@ export const validateEventFields = (req: Request, res: Response, next: NextFunct
 
     if (!eventDate || !eventTime || !totalCost || !userId || !packageEventId) {
         res.status(400).json({ error: "Todos los campos son obligatorios" });
-        return; // Asegura que el middleware no siga ejecutándose
+        return;
     }
 
     next();

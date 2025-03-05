@@ -1,9 +1,9 @@
 import express from "express";
-import { getPackages } from "../controllers/eventControllers/packageController";
-import { validateToken } from "../middlewares/loginMiddlewares/validateToken";
+import { getPackages, getPackageById } from "../controllers/eventControllers/packageController";
 
 const router = express.Router();
 
-router.get("/packages", validateToken, getPackages);
+router.get("/packages", getPackages);
+router.get("/packages/:id", getPackageById);
 
 export default router;

@@ -3,9 +3,14 @@ import { db } from "../../config/database";
 import { events } from "../../models/events";
 import { eq, and, not } from "drizzle-orm";
 
-export const validateEventDate = async (req: Request, res: Response, next: NextFunction) => {
+export const validateEventDate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { eventDate, eventTime } = req.body;
     const eventId = parseInt(req.params.id);
+
+    if (isNaN(eventId)) {
+        res.status(400).json({ error: "ID de evento inválido." });
+        return;
+    }
 
     try {
         const conflictingEvent = await db
@@ -17,10 +22,11 @@ export const validateEventDate = async (req: Request, res: Response, next: NextF
                     eq(events.eventTime, eventTime),
                     not(eq(events.id, eventId))
                 )
-                    .execute();
+            );
 
         if (conflictingEvent.length > 0) {
-            return res.status(400).json({ error: "Ya existe un evento en la misma fecha y hora." });
+            res.status(400).json({ error: "Ya existe un evento en la misma fecha y hora." });
+            return;
         }
 
         next();

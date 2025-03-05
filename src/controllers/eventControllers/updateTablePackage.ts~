@@ -1,0 +1,39 @@
+import { Request, Response } from "express";
+import { db } from "../../config/database";
+import { events } from "../../models/events";
+import { eq } from "drizzle-orm";
+import { packageEvent } from "../../models/packageEvent";
+
+// Extender la interfaz Request para incluir packageEvent
+interface AuthenticatedRequest extends Request {
+    packageEvent?: typeof packageEvent.$inferSelect; // Tipo inferido de packageEvent
+}
+
+export const updateTablePackage = async (req: AuthenticatedRequest, res: Response) => {
+    const eventId = parseInt(req.params.id);
+    const { packageEventId } = req.body;
+
+    try {
+        // Obtener el precio del nuevo paquete
+        const newPackage = req.packageEvent;
+
+        if (!newPackage) {
+            return res.status(400).json({ error: "Paquete no válido." });
+        }
+
+        // Actualizar el evento con el nuevo paquete y recalcular el precio
+        await db
+            .update(events)
+            .set({
+                packageEventId: newPackage.id,
+                totalCost: newPackage.totalPrice, // Recalcular el precio
+            })
+            .where(eq(events.id, eventId))
+            .execute();
+
+        res.status(200).json({ message: "Paquete de mesas actualizado exitosamente." });
+    } catch (error) {
+        console.error("Error actualizando el paquete de mesas:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+};

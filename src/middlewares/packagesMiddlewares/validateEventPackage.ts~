@@ -1,0 +1,31 @@
+import { Request, Response, NextFunction } from "express";
+import { db } from "../../config/database";
+import { packageEvent } from "../../models/packageEvent";
+import { eq } from "drizzle-orm";
+
+// Extender la interfaz Request para incluir packageEvent
+interface AuthenticatedRequest extends Request {
+    packageEvent?: typeof packageEvent.$inferSelect; // Tipo inferido de packageEvent
+}
+
+export const validateEventPackage = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    const { packageEventId } = req.body;
+
+    try {
+        const packageEventExists = await db
+            .select()
+            .from(packageEvent)
+            .where(eq(packageEvent.id, packageEventId))
+            .execute();
+
+        if (packageEventExists.length === 0) {
+            return res.status(404).json({ error: "El paquete de mesas no existe." });
+        }
+
+        req.packageEvent = packageEventExists[0]; // Asignar el paquete a la propiedad packageEvent
+        next();
+    } catch (error) {
+        console.error("Error validando el paquete de mesas:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+};

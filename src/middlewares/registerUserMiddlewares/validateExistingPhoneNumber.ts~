@@ -1,0 +1,8 @@
+import { Request, Response, NextFunction} from "express";
+import { db } from "../../config/database";
+import { users } from "../../models/user";
+import { eq } from "drizzle-orm";
+
+export const validateExistingPhoneNumber = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    
+};

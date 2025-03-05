@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Evento</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: left;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .package-details {
+            background: #f9f9f9;
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Registrar Evento</h1>
+
+    <div id="packageDetails" class="package-details">
+        <h3 id="packageName"></h3>
+        <p id="packageDescription"></p>
+        <p><strong>Precio:</strong> <span id="packagePrice"></span></p>
+    </div>
+
+    <label for="eventDate">Fecha del evento:</label>
+    <input type="date" id="eventDate" required>
+
+    <label for="eventTime">Hora del evento:</label>
+    <input type="time" id="eventTime" required>
+
+    <button onclick="registerEvent()">Registrar Evento</button>
+</div>
+
+<script>
+    let packagePrice = 0;
+
+    async function loadPackageDetails() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const packageId = urlParams.get("packageId");
+
+        if (!packageId) {
+            alert("No se ha seleccionado un paquete.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/packages/${packageId}`);
+            const data = await response.json();
+
+            if (!response.ok || !data.package) {
+                alert("No se pudo cargar la información del paquete.");
+                return;
+            }
+
+            packagePrice = data.package.totalPrice;
+
+            document.getElementById("packageName").textContent = data.package.name;
+            document.getElementById("packageDescription").textContent = data.package.description;
+            document.getElementById("packagePrice").textContent = "$" + packagePrice;
+        } catch (error) {
+            console.error("Error cargando detalles del paquete:", error);
+            alert("Error al cargar el paquete.");
+        }
+    }
+
+    async function registerEvent() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const packageId = urlParams.get("packageId");
+        const eventDate = document.getElementById("eventDate").value;
+        const eventTime = document.getElementById("eventTime").value;
+
+        if (!packageId || !eventDate || !eventTime) {
+            alert("Por favor, completa todos los campos.");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("Debes iniciar sesión antes de registrar un evento.");
+            return;
+        }
+
+        const tokenPayload = JSON.parse(atob(token.split(".")[1]));
+        const userId = tokenPayload.userId;
+
+        if (!userId) {
+            alert("No se pudo obtener el ID del usuario.");
+            return;
+        }
+
+        console.log("Enviando datos:", {
+            eventDate,
+            eventTime,
+            totalCost: packagePrice,
+            userId,
+            packageEventId: parseInt(packageId)
+        });
+
+        try {
+            const response = await fetch("/api/registerEvent", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    eventDate,
+                    eventTime,
+                    totalCost: packagePrice,
+                    userId,
+                    packageEventId: parseInt(packageId)
+                })
+            });
+
+            const data = await response.json();
+
+            console.log("Respuesta del server:", data);
+
+            if (response.ok) {
+                alert("Evento registrado exitosamente.");
+                window.location.href = "/";
+            } else {
+                alert(data.error || "Error al registrar el evento.");
+            }
+        } catch (error) {
+            console.error("Error al registrar el evento:", error);
+            alert("Error interno del servidor.");
+        }
+    }
+
+    loadPackageDetails();
+</script>
+
+
+</body>
+</html>
